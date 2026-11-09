@@ -1,0 +1,67 @@
+# =============================================================
+# PRIVACIDADE (LGPD) - NUNCA versionar dados dos participantes.
+# Ver docs/privacy/LGPD.md. Os dados privados ficam, por padrao,
+# FORA do repositorio (FACEREC_HOME); estas regras sao uma segunda
+# barreira caso alguem copie algo para ca por engano.
+# =============================================================
+data/*
+!data/README.md
+faces/
+embeddings/
+database/
+consent/
+termos/
+checkpoints/
+logs/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.npy
+*.npz
+*.pkl
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+weights.bin
+*.log
+
+# Imagens e videos so entram na lista de permitidos explicitamente.
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.webp
+*.heic
+*.mp4
+*.avi
+*.mov
+*.mkv
+# Excecao: graficos AGREGADOS dos experimentos com dados publicos.
+!experiments/results/figures/*.png
+
+# Datasets publicos nao sao redistribuidos
+lfw/
+*.tgz
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+build/
+dist/
+
+# Editor / SO
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.claude/
+.env
