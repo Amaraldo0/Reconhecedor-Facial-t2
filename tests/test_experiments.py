@@ -7,10 +7,14 @@ import pytest
 from facerec.training import metrics
 from facerec.training.data import (
     Split,
+    assert_partitions_disjoint,
+    cap_per_identity,
+    central_face_index,
     dhash,
     has_cross_split_duplicates,
     make_open_set,
     make_pairs,
+    overlapping_identities,
     remove_cross_split_duplicates,
     split_by_identity,
 )
@@ -124,3 +128,28 @@ def test_ca_007_6_recusa_grupo_pequeno_demais():
     keep = labels < 2
     with pytest.raises(ValueError):
         summarize_private(embeddings[keep], labels[keep], 0.5)
+
+
+def test_ca_008_2_identidade_nao_pode_cruzar_particoes():
+    assert_partitions_disjoint(np.array([1, 1, 2]), np.array([0, 0, 1]))
+    with pytest.raises(ValueError):
+        assert_partitions_disjoint(np.array([1, 1]), np.array([0, 1]))
+
+
+def test_ca_008_3_limite_por_identidade(labels):
+    first, second = cap_per_identity(labels, 3, 5), cap_per_identity(labels, 3, 5)
+    assert np.array_equal(first, second)
+    assert np.unique(labels[first], return_counts=True)[1].max() <= 3
+    assert set(labels[first]) == set(labels)
+
+
+def test_ca_008_4_remove_so_identidades_parecidas():
+    embeddings = np.eye(4, dtype=np.float32)[[0, 0, 1, 1]]
+    reference = np.eye(4, dtype=np.float32)[[1, 2]]
+    removed = overlapping_identities(embeddings, np.array([10, 10, 20, 20]), reference, np.array([7, 8]), 0.6)
+    assert removed.tolist() == [20]
+
+
+def test_face_central_e_escolhida():
+    boxes = np.array([[0.0, 0.0, 20.0, 20.0], [80.0, 90.0, 120.0, 130.0]])
+    assert central_face_index(boxes, 100.0, 110.0) == 1

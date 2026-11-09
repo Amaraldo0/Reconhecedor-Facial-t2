@@ -1,0 +1,51 @@
+# Experimentos com CelebA (SPEC-008). Todos são avaliados no LFW e no CelebA.
+defaults:
+  seed: 42
+  epochs: 12
+  patience: 3
+  p: 32
+  k: 4
+  backbone_lr: 1.0e-4
+  head_lr: 1.0e-3
+  weight_decay: 5.0e-4
+  margin: 0.3
+  scale: 30.0
+  strong_augment: false
+  pretrained: vggface2
+  checkpoint: null
+
+overlap_threshold: 0.60
+
+experiments:
+  - id: C01
+    title: E01 reavaliado (sem fine-tuning)
+    hypothesis: O CelebA é mais difícil que o LFW e separa melhor as configurações.
+    strategy: baseline
+    loss: none
+  - id: C02
+    title: E05 reavaliado (fine-tuning no LFW)
+    hypothesis: O fine-tuning no LFW traz pouca vantagem em um dataset que não viu.
+    strategy: baseline
+    loss: none
+    checkpoint: checkpoints/public/E05.pt
+  - id: C03
+    title: Fine-tuning parcial no CelebA, softmax
+    hypothesis: Com cerca de oito vezes mais identidades, o fine-tuning supera C01 de forma clara.
+    strategy: partial
+    loss: crossentropy
+  - id: C04
+    title: Fine-tuning parcial no CelebA, ArcFace
+    hypothesis: Com muitas identidades, a margem angular supera a softmax sem margem (C03).
+    strategy: partial
+    loss: arcface
+  - id: C05
+    title: Fine-tuning parcial no CelebA, Triplet
+    hypothesis: Com muitas identidades, Triplet fica atrás das perdas com classificação (C03 e C04).
+    strategy: partial
+    loss: triplet
+  - id: C06
+    title: Fine-tuning completo no CelebA, ArcFace
+    hypothesis: Com mais dados, liberar toda a rede supera o fine-tuning parcial (C04), ao contrário de E07.
+    strategy: full
+    loss: arcface
+    backbone_lr: 1.0e-5

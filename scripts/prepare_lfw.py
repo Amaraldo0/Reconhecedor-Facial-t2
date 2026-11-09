@@ -16,7 +16,7 @@ from tqdm import tqdm
 
 from facerec.config import assert_safe_data_dir, default_home
 from facerec.imaging import align_and_crop
-from facerec.training.data import dhash
+from facerec.training.data import central_face_index, dhash
 from facerec.vision import resolve_device
 
 URLS = ("https://vis-www.cs.umass.edu/lfw/lfw.tgz", "https://ndownloader.figshare.com/files/5976018")
@@ -50,12 +50,6 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def choose_central_face(boxes: np.ndarray, center: float = 125.0) -> int:
-    """No LFW, a pessoa rotulada é a que está no centro da imagem."""
-    centers = (boxes[:, :2] + boxes[:, 2:]) / 2
-    return int(np.argmin(np.sum((centers - center) ** 2, axis=1)))
-
-
 def main() -> None:
     from facenet_pytorch import MTCNN
 
@@ -83,7 +77,7 @@ def main() -> None:
             if box is None:
                 failures += 1
                 continue
-            index = choose_central_face(box)
+            index = central_face_index(box, 125.0, 125.0)
             eyes = landmark[index]
             rotated = align_and_crop(image, box[index], eyes[0], eyes[1], IMAGE_SIZE, MARGIN)
             aligned.append(rotated)

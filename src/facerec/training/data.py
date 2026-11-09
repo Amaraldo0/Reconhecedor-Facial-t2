@@ -142,3 +142,45 @@ def make_open_set(labels: np.ndarray, seed: int, max_gallery_images: int = 3) ->
             probes.extend(members)
             truth.extend([-1] * len(members))
     return OpenSetProtocol(np.array(gallery), np.array(gallery_labels), np.array(probes), np.array(truth))
+
+
+def central_face_index(boxes: np.ndarray, center_x: float, center_y: float) -> int:
+    """Nos datasets de benchmark, a pessoa rotulada é a mais próxima do centro da imagem."""
+    centers = (boxes[:, :2] + boxes[:, 2:]) / 2
+    return int(np.argmin(np.sum((centers - (center_x, center_y)) ** 2, axis=1)))
+
+
+def cap_per_identity(labels: np.ndarray, maximum: int, seed: int) -> np.ndarray:
+    """Índices ordenados com no máximo `maximum` imagens por identidade."""
+    rng = np.random.default_rng(seed)
+    kept = [
+        rng.permutation(np.flatnonzero(labels == label))[:maximum] if counts > maximum else np.flatnonzero(labels == label)
+        for label, counts in zip(*np.unique(labels, return_counts=True))
+    ]
+    return np.sort(np.concatenate(kept))
+
+
+def assert_partitions_disjoint(labels: np.ndarray, partitions: np.ndarray) -> None:
+    """Garante que nenhuma identidade apareça em mais de uma partição."""
+    seen: dict[int, int] = {}
+    for label, partition in zip(labels.tolist(), partitions.tolist()):
+        if seen.setdefault(label, partition) != partition:
+            raise ValueError(f"Identidade {label} cruza as partições.")
+
+
+def identity_centroids(embeddings: np.ndarray, labels: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    identities, inverse = np.unique(labels, return_inverse=True)
+    totals = np.zeros((len(identities), embeddings.shape[1]), dtype=np.float32)
+    np.add.at(totals, inverse, embeddings)
+    totals /= np.linalg.norm(totals, axis=1, keepdims=True) + 1e-12
+    return identities, totals
+
+
+def overlapping_identities(
+    embeddings: np.ndarray, labels: np.ndarray, reference: np.ndarray, reference_labels: np.ndarray, threshold: float,
+) -> np.ndarray:
+    """Identidades de `labels` cujo centróide se aproxima de alguma identidade de referência."""
+    identities, centroids = identity_centroids(embeddings, labels)
+    _, others = identity_centroids(reference, reference_labels)
+    best = np.concatenate([(centroids[i:i + 2048] @ others.T).max(axis=1) for i in range(0, len(centroids), 2048)])
+    return identities[best >= threshold]

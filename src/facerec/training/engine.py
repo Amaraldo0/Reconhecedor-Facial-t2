@@ -45,10 +45,11 @@ def to_batch(crops: torch.Tensor) -> torch.Tensor:
 @torch.inference_mode()
 def embed_all(model, crops: torch.Tensor, batch_size: int = 256) -> np.ndarray:
     model.eval()
+    device = next(model.parameters()).device
     parts = []
     for start in range(0, len(crops), batch_size):
         with torch.amp.autocast("cuda"):
-            output = model(to_batch(crops[start:start + batch_size]))
+            output = model(to_batch(crops[start:start + batch_size].to(device)))
         parts.append(F.normalize(output.float(), dim=1).cpu().numpy())
     return np.concatenate(parts)
 
@@ -115,7 +116,7 @@ class TrainResult:
 def train(model, cfg: dict, crops: torch.Tensor, labels: np.ndarray, val_crops: torch.Tensor, val_pairs: Pairs) -> TrainResult:
     """Treina restaurando o melhor estado, medido só na validação. Lotes PK iguais para toda perda."""
     strategy, loss_name = cfg["strategy"], cfg["loss"]
-    device = crops.device
+    device = next(model.parameters()).device
     apply_freezing(model, strategy)
     remap = {label: index for index, label in enumerate(np.unique(labels))}
     mapped = np.array([remap[label] for label in labels])
@@ -141,8 +142,8 @@ def train(model, cfg: dict, crops: torch.Tensor, labels: np.ndarray, val_crops: 
     for epoch in range(cfg["epochs"]):
         set_train_mode(model, strategy)
         for batch_index in pk_batches(mapped, cfg["p"], cfg["k"], rng):
-            index = torch.from_numpy(batch_index).to(device)
-            batch = to_batch(augment(crops[index], cfg.get("strong_augment", False)))
+            images = crops[torch.from_numpy(batch_index).to(crops.device)].to(device)
+            batch = to_batch(augment(images, cfg.get("strong_augment", False)))
             optimizer.zero_grad(set_to_none=True)
             with torch.amp.autocast("cuda"):
                 loss = criterion(model(batch), index_labels(mapped, batch_index, device))
@@ -284,11 +285,14 @@ def evaluate(
     }
 
 
-def compare_matchers(val_e, val_labels, test_e, test_labels, seed: int) -> dict[str, dict[str, float]]:
+def compare_matchers(
+    val_e, val_labels, test_e, test_labels, seed: int,
+    names: tuple[str, ...] = ("cosine_max", "euclidean", "prototype", "knn3", "svm"),
+) -> dict[str, dict[str, float]]:
     """Compara métodos de identificação, com threshold de cada um definido na validação."""
     val_open, test_open = make_open_set(val_labels, seed), make_open_set(test_labels, seed)
     results = {}
-    for method in ("cosine_max", "euclidean", "prototype", "knn3", "svm"):
+    for method in names:
         started = time.time()
         threshold = _open_set_threshold(val_e, val_open, method)
         val_predicted, val_scores = identify(
