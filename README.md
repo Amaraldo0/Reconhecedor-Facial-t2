@@ -143,8 +143,8 @@ FAR-alvo de 1% para 0,1% com 20 pessoas custa 6 pontos de identificação corret
 para 91,1%). Ver [ADR-003](docs/decisions/ADR-003-recognition-threshold.md).
 
 **Custo e complexidade.** Baselines não exigem treino. O fine-tuning parcial leva cerca de 20 s
-e o completo, 401 s, sem melhora. A inferência leva menos de 1 ms por recorte na GPU, e o
-ciclo completo na aplicação ficou em cerca de 110 ms para uma imagem de 250×250.
+e o completo, 401 s, sem melhora. Com E05, a inferência levou 0,37 ms por recorte, em lote na GPU. O
+ciclo completo na aplicação levou cerca de 110 ms em uma imagem de 250×250 (medição única).
 
 **Erros e limitações.**
 
