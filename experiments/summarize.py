@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 
 import matplotlib
+import yaml
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
@@ -61,7 +62,7 @@ def eer_plot(results: dict) -> None:
     axis.set_xscale("log")
     axis.set_xlabel("EER no conjunto de teste (%, escala logarítmica; menor é melhor)")
     axis.set_title("Erro por experimento", loc="left", fontweight="bold")
-    axis.legend(frameon=False, labelcolor=INK, loc="lower right")
+    axis.legend(frameon=False, labelcolor=INK, loc="upper right")
     fig.tight_layout()
     fig.savefig(FIGURES / "eer_por_experimento.png", facecolor=SURFACE)
     plt.close(fig)
@@ -74,7 +75,7 @@ def roc_plot(results: dict, keys: list[str]) -> None:
         axis.plot(roc["fpr"], roc["tpr"], color=color, linewidth=2, label=f"{key} · {results[key]['config']['title']}")
     axis.set_xscale("log")
     axis.set_xlim(1e-3, 1)
-    axis.set_ylim(0.5, 1.005)
+    axis.set_ylim(0.9, 1.002)
     axis.set_xlabel("Taxa de falsa aceitação (escala logarítmica)")
     axis.set_ylabel("Taxa de verdadeira aceitação")
     axis.set_title("Curva ROC no conjunto de teste", loc="left", fontweight="bold")
@@ -91,7 +92,7 @@ def distribution_plot(result: dict, key: str, threshold: float) -> None:
     axis.plot(centers, histogram["same"], color=BLUE, linewidth=2, label="Mesma pessoa")
     axis.plot(centers, histogram["different"], color=ORANGE, linewidth=2, label="Pessoas diferentes")
     axis.axvline(threshold, color=MUTED, linewidth=1.2, linestyle="--")
-    axis.annotate(f"threshold {threshold:.2f}", (threshold, axis.get_ylim()[1]), xytext=(5, -12), textcoords="offset points", color=INK, fontsize=9)
+    axis.annotate(f"threshold {threshold:.2f}", (threshold, axis.get_ylim()[1]), xytext=(-5, -12), textcoords="offset points", color=INK, fontsize=9, ha="right")
     axis.set_xlabel("Similaridade de cosseno")
     axis.set_ylabel("Densidade")
     axis.set_title(f"Distribuições de similaridade no teste ({key})", loc="left", fontweight="bold")
@@ -128,11 +129,28 @@ def matcher_table() -> str:
     lines = [
         f"Modelo: {data['model_experiment']}. FAR-alvo de 1% definido na validação.",
         "",
-        "| Comparador | Taxa de identificação correta | FAR entre desconhecidos | Identidade errada aceita | Threshold |",
-        "|---|---|---|---|---|",
+        "| Comparador | Identificação correta (validação) | Identificação correta (teste) | FAR entre desconhecidos (teste) | Identidade errada aceita (teste) | Threshold |",
+        "|---|---|---|---|---|---|",
     ]
     for method, row in data["methods"].items():
-        lines.append(f"| {method} | {row['dir']:.4f} | {row['far']:.4f} | {row['wrong_identity_rate']:.4f} | {row['threshold']:.3f} |")
+        lines.append(
+            f"| {method} | {row['val_dir']:.4f} | {row['dir']:.4f} | {row['far']:.4f} "
+            f"| {row['wrong_identity_rate']:.4f} | {row['threshold']:.3f} |"
+        )
+    lines += [
+        "",
+        f"## Threshold por tamanho de galeria ({data['chosen_method']})",
+        "",
+        "Threshold calibrado na validação e medido no teste, com 30 sorteios de galeria.",
+        "",
+        "| Pessoas na galeria | FAR-alvo | Threshold | FAR no teste | Identificação correta no teste |",
+        "|---|---|---|---|---|",
+    ]
+    for row in data["gallery_study"]:
+        lines.append(
+            f"| {row['gallery_size']} | {row['target_far']:.3f} | {row['threshold']:.3f} "
+            f"| {row['test_far']:.4f} | {row['test_dir']:.4f} |"
+        )
     return "\n".join(lines)
 
 
@@ -145,7 +163,8 @@ def main() -> None:
     if len(keys) < 3 and "E09" in results:
         keys.append("E09")
     roc_plot(results, keys)
-    distribution_plot(results[best], best, results[best]["val"]["threshold_open_far1"])
+    app_config = yaml.safe_load((REPO_ROOT / "configs" / "app.yaml").read_text(encoding="utf-8"))
+    distribution_plot(results[best], best, app_config["recognition"]["threshold"])
 
     leakage = results[best]["leakage_control"]
     report = [

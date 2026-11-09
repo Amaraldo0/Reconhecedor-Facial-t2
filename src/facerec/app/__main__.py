@@ -33,8 +33,15 @@ def main() -> None:
         raise SystemExit("Inicialização recusada: server.host deve ser um endereço de loopback.")
     configure_logging(cfg.logs_dir)
     print("Carregando modelos...")
+    try:
+        embedder = FaceNetEmbedder(cfg.model, cfg.home)
+    except FileNotFoundError as error:
+        raise SystemExit(
+            f"Checkpoint não encontrado em {cfg.home}. Gere com scripts/prepare_lfw.py e "
+            "experiments/run_experiments.py --only E05, ou use model.checkpoint: null."
+        ) from error
     store = FaceStore(cfg.db_path, cfg.photos_dir)
-    service = FaceService(cfg, MtcnnDetector(cfg.detection, cfg.model.device), FaceNetEmbedder(cfg.model, cfg.home), store)
+    service = FaceService(cfg, MtcnnDetector(cfg.detection, cfg.model.device), embedder, store)
     print(f"Pessoas cadastradas: {len(service.list_persons()) or 'Nenhuma pessoa cadastrada.'}")
     print(f"Abra http://{cfg.server.host}:{cfg.server.port}")
     uvicorn.run(create_app(service, cfg), host=cfg.server.host, port=cfg.server.port, log_level="warning", access_log=False)

@@ -96,9 +96,16 @@ def run_matchers(best_id: str, config: dict, data_root: Path, checkpoints: Path,
         model.load_state_dict(torch.load(checkpoints / f"{best_id}.pt", map_location=device, weights_only=True))
     val_e = engine.embed_all(model, tensor(crops, split.val, device))
     test_e = engine.embed_all(model, tensor(crops, split.test, device))
+    methods = engine.compare_matchers(val_e, labels[split.val], test_e, labels[split.test], config["seed"])
+    # Só comparadores suportados pela galeria sem retreino a cada cadastro; escolha pela validação.
+    chosen = max(("cosine_max", "prototype"), key=lambda name: methods[name]["val_dir"])
     return {
         "model_experiment": best_id,
-        "methods": engine.compare_matchers(val_e, labels[split.val], test_e, labels[split.test], config["seed"]),
+        "methods": methods,
+        "chosen_method": chosen,
+        "gallery_study": engine.gallery_size_study(
+            val_e, labels[split.val], test_e, labels[split.test], chosen, config["seed"]
+        ),
     }
 
 

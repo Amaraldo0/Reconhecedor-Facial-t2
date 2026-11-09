@@ -1,0 +1,90 @@
+{
+ "model_experiment": "E05",
+ "methods": {
+  "cosine_max": {
+   "dir": 0.9022801302931596,
+   "far": 0.00938337801608579,
+   "wrong_identity_rate": 0.0,
+   "val_dir": 0.9544658493870403,
+   "threshold": 0.6530550122261047,
+   "seconds": 0.00852203369140625
+  },
+  "euclidean": {
+   "dir": 0.9022801302931596,
+   "far": 0.00938337801608579,
+   "wrong_identity_rate": 0.0,
+   "val_dir": 0.9544658493870403,
+   "threshold": -0.833000898361206,
+   "seconds": 2.134643793106079
+  },
+  "prototype": {
+   "dir": 0.9315960912052117,
+   "far": 0.00938337801608579,
+   "wrong_identity_rate": 0.0,
+   "val_dir": 0.9562171628721541,
+   "threshold": 0.640849769115448,
+   "seconds": 0.009830951690673828
+  },
+  "knn3": {
+   "dir": 0.7850162866449512,
+   "far": 0.007372654155495978,
+   "wrong_identity_rate": 0.0,
+   "val_dir": 0.7845884413309983,
+   "threshold": 0.545587182044983,
+   "seconds": 0.04841041564941406
+  },
+  "svm": {
+   "dir": 0.9283387622149837,
+   "far": 0.00871313672922252,
+   "wrong_identity_rate": 0.0,
+   "val_dir": 0.9439579684763573,
+   "threshold": -0.2876130968967087,
+   "seconds": 0.7875964641571045
+  }
+ },
+ "chosen_method": "prototype",
+ "gallery_study": [
+  {
+   "gallery_size": 5,
+   "target_far": 0.01,
+   "threshold": 0.4854874312877655,
+   "test_far": 0.006814119749776586,
+   "test_dir": 0.9757127771911299
+  },
+  {
+   "gallery_size": 5,
+   "target_far": 0.001,
+   "threshold": 0.6134442687034607,
+   "test_far": 0.000580875781948168,
+   "test_dir": 0.9271383315733897
+  },
+  {
+   "gallery_size": 20,
+   "target_far": 0.01,
+   "threshold": 0.5530849099159241,
+   "test_far": 0.007529043789097408,
+   "test_dir": 0.969558599695586
+  },
+  {
+   "gallery_size": 20,
+   "target_far": 0.001,
+   "threshold": 0.641602635383606,
+   "test_far": 0.0012511170688114387,
+   "test_dir": 0.9105783866057838
+  },
+  {
+   "gallery_size": 50,
+   "target_far": 0.01,
+   "threshold": 0.6003476977348328,
+   "test_far": 0.0072609472743521,
+   "test_dir": 0.9642086330935252
+  },
+  {
+   "gallery_size": 50,
+   "target_far": 0.001,
+   "threshold": 0.6845418214797974,
+   "test_far": 0.0014745308310991957,
+   "test_dir": 0.8839928057553957
+  }
+ ]
+}

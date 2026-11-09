@@ -61,7 +61,7 @@ function personRow(person) {
   name.textContent = person.name;
   const meta = document.createElement("small");
   const date = new Date(person.created_at).toLocaleDateString("pt-BR");
-  meta.textContent = `Cadastrado em ${date} · ${person.num_embeddings} ${person.num_embeddings === 1 ? "foto" : "fotos"}`;
+  meta.textContent = `Cadastro em ${date} ·${person.num_embeddings} ${person.num_embeddings === 1 ? "foto" : "fotos"}`;
   info.append(name, meta);
 
   const remove = document.createElement("button");
@@ -103,8 +103,9 @@ function selectTab(name) {
 }
 
 function drawFaces(faces) {
-  const context = $("canvas").getContext("2d");
-  const scale = Math.max(1, $("canvas").width / 640);
+  const canvas = $("canvas");
+  const context = canvas.getContext("2d");
+  const scale = canvas.width / (canvas.clientWidth || canvas.width);
   context.lineWidth = 3 * scale;
   context.font = `600 ${16 * scale}px system-ui, sans-serif`;
   context.textBaseline = "top";
@@ -311,7 +312,7 @@ async function submitEnrollment(event) {
   submit.disabled = true;
   try {
     const person = await api("/api/persons", { method: "POST", body: form });
-    showMessage(message, `${person.name} foi cadastrada com ${person.num_embeddings} ${person.num_embeddings === 1 ? "foto" : "fotos"}.`, true);
+    showMessage(message, `Cadastro concluído: ${person.name}, ${person.num_embeddings} ${person.num_embeddings === 1 ? "foto" : "fotos"}.`, true);
     $("enroll-form").reset();
     pendingPhotos = [];
     renderPhotos();

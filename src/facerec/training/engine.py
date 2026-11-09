@@ -291,9 +291,54 @@ def compare_matchers(val_e, val_labels, test_e, test_labels, seed: int) -> dict[
     for method in ("cosine_max", "euclidean", "prototype", "knn3", "svm"):
         started = time.time()
         threshold = _open_set_threshold(val_e, val_open, method)
+        val_predicted, val_scores = identify(
+            val_e[val_open.gallery], val_open.gallery_labels, val_e[val_open.probes], method
+        )
+        val_rates = metrics.open_set_rates(val_predicted, val_scores, val_open.probe_truth, threshold)
         predicted, scores = identify(
             test_e[test_open.gallery], test_open.gallery_labels, test_e[test_open.probes], method
         )
         rates = metrics.open_set_rates(predicted, scores, test_open.probe_truth, threshold)
-        results[method] = {**rates, "threshold": float(threshold), "seconds": time.time() - started}
+        results[method] = {
+            **rates, "val_dir": val_rates["dir"], "threshold": float(threshold), "seconds": time.time() - started,
+        }
     return results
+
+
+def _pooled_open_set(embeddings, protocol: OpenSetProtocol, method: str, size: int, draws: int, rng):
+    """Simula galerias de `size` pessoas, retornando escores de desconhecidos e de conhecidos."""
+    identities = np.unique(protocol.gallery_labels)
+    unknown_scores, known_scores, known_correct = [], [], []
+    for _ in range(draws):
+        chosen = rng.choice(identities, size=min(size, len(identities)), replace=False)
+        in_gallery = np.isin(protocol.gallery_labels, chosen)
+        predicted, scores = identify(
+            embeddings[protocol.gallery[in_gallery]], protocol.gallery_labels[in_gallery],
+            embeddings[protocol.probes], method,
+        )
+        unknown_scores.append(scores[protocol.probe_truth == -1])
+        known = np.isin(protocol.probe_truth, chosen)
+        known_scores.append(scores[known])
+        known_correct.append(predicted[known] == protocol.probe_truth[known])
+    return np.concatenate(unknown_scores), np.concatenate(known_scores), np.concatenate(known_correct)
+
+
+def gallery_size_study(
+    val_e, val_labels, test_e, test_labels, method: str, seed: int,
+    sizes=(5, 20, 50), far_targets=(0.01, 0.001), draws: int = 30,
+) -> list[dict[str, float]]:
+    """Calibra o threshold na validação para cada tamanho de galeria e o aplica ao teste."""
+    rng = np.random.default_rng(seed)
+    val_open, test_open = make_open_set(val_labels, seed), make_open_set(test_labels, seed)
+    rows = []
+    for size in sizes:
+        val_unknown, _, _ = _pooled_open_set(val_e, val_open, method, size, draws, rng)
+        unknown, known, correct = _pooled_open_set(test_e, test_open, method, size, draws, rng)
+        for target in far_targets:
+            threshold = metrics.threshold_at_far(val_unknown, target)
+            rows.append({
+                "gallery_size": size, "target_far": target, "threshold": threshold,
+                "test_far": float(np.mean(unknown >= threshold)),
+                "test_dir": float(np.mean((known >= threshold) & correct)),
+            })
+    return rows
