@@ -4,9 +4,9 @@ server:
   port: 8000
 
 model:
-  id: facenet-vggface2-e05
+  id: facenet-vggface2
   pretrained: vggface2     # vggface2 | casia-webface
-  checkpoint: checkpoints/public/E05.pt  # relativo a FACEREC_HOME; null usa os pesos públicos (E01)
+  checkpoint: null         # ADR-001: pesos públicos, sem fine-tuning. Caminho relativo a FACEREC_HOME, se usado
   device: auto             # auto | cuda | cpu
 
 detection:
@@ -23,7 +23,7 @@ quality:
   max_brightness: 225.0
 
 recognition:
-  threshold: 0.642         # ADR-003: validação, galeria de 20 pessoas, FAR-alvo de 0,1%
+  threshold: 0.673         # ADR-003: validação, galeria de 20 pessoas, FAR-alvo de 0,1%
   aggregation: prototype   # max | prototype (ADR-001)
 
 enrollment:

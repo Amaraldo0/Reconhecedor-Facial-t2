@@ -37,8 +37,8 @@ def main() -> None:
         embedder = FaceNetEmbedder(cfg.model, cfg.home)
     except FileNotFoundError as error:
         raise SystemExit(
-            f"Checkpoint não encontrado em {cfg.home}. Gere com scripts/prepare_lfw.py e "
-            "experiments/run_experiments.py --only E05, ou use model.checkpoint: null."
+            f"Checkpoint não encontrado em {cfg.home}. Gere-o com os scripts de experimentos "
+            "ou use model.checkpoint: null em configs/app.yaml."
         ) from error
     store = FaceStore(cfg.db_path, cfg.photos_dir)
     service = FaceService(cfg, MtcnnDetector(cfg.detection, cfg.model.device), embedder, store)

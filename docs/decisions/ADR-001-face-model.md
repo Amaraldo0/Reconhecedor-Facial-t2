@@ -1,43 +1,48 @@
 # ADR-001: Modelo de reconhecimento
 
-**Status:** aceito
+**Status:** aceito. Substitui a decisão anterior, que usava E05, depois da inclusão do CelebA (SPEC-008).
 
 ## Contexto
 
-A Parte 1 comparou dez configurações no LFW (ver `experiments/results/SUMMARY.md`). A
-regra definida antes da execução foi escolher o menor EER no conjunto de **validação**.
+Foram 10 experimentos no LFW (E01 a E10) e 6 avaliados em LFW e CelebA (C01 a C06). A
+regra final, definida antes dos treinos no CelebA, escolhe a menor **média do EER de
+validação nos dois datasets**.
 
 ## Decisão
 
-Usar **E05**: FaceNet (Inception-ResNet v1, 512 dimensões) pré-treinado em VGGFace2,
-com fine-tuning parcial (`repeat_3` em diante, 8,9 M de 27,9 M de parâmetros) e
-entropia cruzada sobre similaridade de cosseno. Detecção e alinhamento com MTCNN.
+Usar **C01**: FaceNet (Inception-ResNet v1, 512 dimensões) com os pesos públicos
+VGGFace2, **sem fine-tuning**. Detecção e alinhamento com MTCNN. Comparação com o
+**protótipo** da pessoa (média normalizada dos embeddings), que teve a maior taxa de
+acerto na validação nos dois datasets entre os comparadores viáveis.
 
-Na identificação, comparar com o **protótipo** (média normalizada dos embeddings da
-pessoa), que teve a maior taxa de acerto na validação entre os comparadores que não
-exigem retreino a cada cadastro (0,9562, contra 0,9545 da melhor amostra individual).
+## Justificativa
 
-## Justificativa e ressalva
+| Exp. | Configuração | Média EER val | EER val CelebA | EER val LFW |
+|---|---|---|---|---|
+| **C01** | **Sem fine-tuning** | **0,0239** | 0,0399 | 0,0079 |
+| C05 | Parcial, Triplet, CelebA | 0,0245 | 0,0403 | 0,0087 |
+| C02 | E05 (parcial, softmax, LFW) | 0,0250 | 0,0437 | 0,0064 |
+| C04 | Parcial, ArcFace, CelebA | 0,0252 | 0,0416 | 0,0087 |
+| C06 | Completo, ArcFace, CelebA | 0,0252 | 0,0415 | 0,0090 |
+| C03 | Parcial, softmax, CelebA | 0,0265 | 0,0422 | 0,0108 |
 
-| | EER validação | EER teste (IC 95%) |
-|---|---|---|
-| E01 (sem fine-tuning) | 0,0079 | 0,0075 (0,0047–0,0118) |
-| E05 (escolhido) | 0,0064 | 0,0070 (0,0036–0,0106) |
+As diferenças são pequenas e os intervalos de confiança se sobrepõem. Portanto, o
+resultado **não prova** que o pré-treinado é superior; mostra que nenhum fine-tuning
+testado trouxe ganho que justificasse seu custo e sua complexidade. A escolha do
+pré-treinado também dispensa checkpoint local: quem clonar o projeto só precisa dos
+pesos públicos.
 
-E05 venceu pela regra, mas **a vantagem sobre E01 está dentro do ruído**: os intervalos
-se sobrepõem bastante. O fine-tuning parcial custou cerca de 21 s de GPU, e E05 teve o
-menor EER no teste degradado (0,0172, contra 0,0221 de E01). O LFW está perto do teto
-de desempenho desses modelos, o que limita o que se pode concluir sobre o fine-tuning.
+O E05, escolhido apenas com o LFW, tinha o melhor EER nesse dataset, mas ficou pior no
+CelebA (0,0437 contra 0,0399). A vantagem era, ao menos em parte, específica do LFW.
 
 ## Alternativas
 
-- **E01**: mais simples e sem checkpoint local. Para usá-lo, defina `model.id: facenet-vggface2` e `model.checkpoint: null`, e recadastre as pessoas.
-- **E06 (Triplet)**: maior accuracy no teste, mas não pode ser escolhido por isso; na validação ficou atrás de E05.
-- **E07 (fine-tuning completo)**: sem ganho e cerca de 19 vezes mais caro.
-- **SVM como comparador**: exigiria retreino a cada cadastro e não superou o protótipo na validação.
+- **E05 ou C02**: melhor no LFW, pior no CelebA.
+- **C06 (fine-tuning completo)**: 2.027 s de treino, sem ganho.
+- **SVM como comparador**: exige retreino a cada cadastro.
 
 ## Consequências
 
-O checkpoint é gerado localmente e não é versionado. Como foi treinado só com dados
-públicos, não é biométrico dos participantes. Se o grupo fizer fine-tuning com fotos
-privadas, o novo checkpoint passa a ser privado (§19).
+Se o grupo fizer fine-tuning com as fotos privadas, o checkpoint resultante passa a ser
+privado (§19). Checkpoints derivados do CelebA não são publicados, conforme os termos
+de uso desse dataset. Trocar o modelo exige recadastrar as pessoas.

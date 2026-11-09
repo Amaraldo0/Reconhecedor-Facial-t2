@@ -164,7 +164,8 @@ def main() -> None:
         keys.append("E09")
     roc_plot(results, keys)
     app_config = yaml.safe_load((REPO_ROOT / "configs" / "app.yaml").read_text(encoding="utf-8"))
-    distribution_plot(results[best], best, app_config["recognition"]["threshold"])
+    deployed = "E01" if app_config["model"]["checkpoint"] is None else best
+    distribution_plot(results[deployed], deployed, app_config["recognition"]["threshold"])
 
     leakage = results[best]["leakage_control"]
     report = [

@@ -26,20 +26,21 @@ pip install -e . --no-deps
 
 ## Execução
 
-O checkpoint da configuração escolhida é gerado localmente, em poucos minutos com GPU:
+A aplicação usa os pesos públicos, baixados automaticamente na primeira execução:
 
 ```bash
-python scripts/prepare_lfw.py
-python experiments/run_experiments.py --only E05
 python -m facerec.app
 ```
 
-Abra <http://127.0.0.1:8000>. Para reproduzir todos os experimentos:
+Abra <http://127.0.0.1:8000>. Para reproduzir os experimentos:
 
 ```bash
+python scripts/prepare_lfw.py
 python experiments/run_experiments.py
 python experiments/summarize.py
 ```
+
+Os experimentos com CelebA estão descritos em [data/README.md](data/README.md).
 
 Testes: `pytest` (dados sintéticos) e `pytest -m slow` (pesos reais e LFW local).
 
@@ -73,6 +74,13 @@ citam o critério que verificam (`test_ca_002_3_...`).
 - Termos: **a confirmar pelo grupo na página oficial antes da entrega** (Anexo B). O site estava inacessível quando o projeto foi preparado.
 - Uso: 13.233 imagens de 5.749 pessoas, para fine-tuning, validação e teste. O arquivo veio do espelho no Figshare também usado pelo scikit-learn, com SHA-256 conferido. **Não é redistribuído aqui.**
 
+**CelebA (CelebFaces Attributes)**
+
+- Fonte oficial: <https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html> (MMLAB, CUHK).
+- Finalidade: pesquisa acadêmica não comercial.
+- Termos: uso acadêmico e não comercial, com restrições à redistribuição das imagens e de dados derivados. **O grupo deve conferir o texto oficial antes da entrega** (Anexo B).
+- Uso: até 10 imagens por identidade (92.589 imagens de 10.177 pessoas), com a partição oficial. Imagens obtidas de cópia no Kaggle; identidades do Google Drive oficial, com MD5 conferido. **Nem as imagens nem checkpoints derivados são distribuídos aqui.**
+
 **Pesos pré-treinados**: `facenet-pytorch` (<https://github.com/timesler/facenet-pytorch>), baixados por referência, treinados em VGGFace2 e CASIA-WebFace.
 
 **Dataset privado**: fotos dos integrantes, com consentimento, somente locais. Ver [data/README.md](data/README.md).
@@ -96,30 +104,62 @@ Accuracy e F1 no teste, com o threshold de EER obtido na validação.
 | E02 | FaceNet CASIA | baseline | público | 0,9863 | 0,9863 | Pior ponto de partida; EER val 0,0167 |
 | E03 | FaceNet VGGFace2 | baseline sem nivelar olhos | público | 0,9925 | 0,9925 | Sem ganho do alinhamento |
 | E04 | FaceNet VGGFace2 | fine-tuning parcial, ArcFace | público | 0,9914 | 0,9914 | EER val 0,0069 |
-| **E05** | **FaceNet VGGFace2** | **fine-tuning parcial, softmax** | **público** | **0,9919** | **0,9920** | **Escolhido; EER val 0,0064** |
+| E05 | FaceNet VGGFace2 | fine-tuning parcial, softmax | público | 0,9919 | 0,9920 | Melhor só no LFW; EER val 0,0064 |
 | E06 | FaceNet VGGFace2 | fine-tuning parcial, Triplet | público | 0,9930 | 0,9930 | EER val 0,0069 |
 | E07 | FaceNet VGGFace2 | fine-tuning completo, ArcFace | público | 0,9925 | 0,9925 | 401 s, sem ganho |
 | E08 | FaceNet CASIA | fine-tuning parcial, ArcFace | público | 0,9917 | 0,9917 | Maior ganho sobre seu baseline |
 | E09 | Inception-ResNet | treino do zero, ArcFace | público | 0,7579 | 0,7572 | Controle; EER 24,3% |
 | E10 | FaceNet VGGFace2 | fine-tuning parcial, ArcFace, aumento forte | público | 0,9914 | 0,9914 | EER val 0,0067 |
-| P01 | Configuração E05 | avaliação | privado | *pendente* | *pendente* | Rodar `experiments/evaluate_private.py` |
+| P01 | Configuração C01 | avaliação | privado | *pendente* | *pendente* | Rodar `experiments/evaluate_private.py` |
 
-Tabela completa (AUC, EER com IC 95%, FAR, FRR, teste degradado) e comparadores em
-[`experiments/results/SUMMARY.md`](experiments/results/SUMMARY.md).
+Tabelas completas (AUC, EER com IC 95%, FAR, FRR, teste degradado) e comparadores em
+[`SUMMARY.md`](experiments/results/SUMMARY.md) e [`SUMMARY_CELEBA.md`](experiments/results/SUMMARY_CELEBA.md).
 
+### Segunda rodada: CelebA e LFW
+
+Accuracy no teste de cada dataset. **A configuração usada na aplicação é C01**, escolhida
+pela menor média do EER de validação nos dois datasets, regra definida antes dos treinos.
+
+| Experimento | Modelo | Estratégia | Treino | Acc. CelebA | EER teste CelebA | Acc. LFW | EER teste LFW | Média EER val |
+|---|---|---|---|---|---|---|---|---|
+| **C01** | **FaceNet VGGFace2** | **sem fine-tuning** | **-** | **0,9625** | **0,0369** | **0,9919** | **0,0075** | **0,0239** |
+| C02 | FaceNet VGGFace2 | E05 reavaliado | LFW | 0,9600 | 0,0394 | 0,9919 | 0,0070 | 0,0250 |
+| C03 | FaceNet VGGFace2 | parcial, softmax | CelebA | 0,9571 | 0,0407 | 0,9919 | 0,0086 | 0,0265 |
+| C04 | FaceNet VGGFace2 | parcial, ArcFace | CelebA | 0,9596 | 0,0388 | 0,9927 | 0,0073 | 0,0252 |
+| C05 | FaceNet VGGFace2 | parcial, Triplet | CelebA | 0,9608 | 0,0376 | 0,9914 | 0,0083 | 0,0245 |
+| C06 | FaceNet VGGFace2 | completo, ArcFace | CelebA | 0,9599 | 0,0380 | 0,9927 | 0,0070 | 0,0252 |
+
+Para o teste do LFW continuar independente, 1.792 identidades parecidas com as da
+validação ou do teste do LFW foram retiradas do treino do CelebA, restando 56.742 imagens
+de 6.399 pessoas (SPEC-008).
+
+![EER nos dois datasets](experiments/results/figures/eer_celeba_lfw.png)
 ![EER por experimento](experiments/results/figures/eer_por_experimento.png)
 ![Distribuições de similaridade](experiments/results/figures/distribuicao_similaridade.png)
 ![Curva ROC](experiments/results/figures/roc.png)
 
 ### Análise
 
-**Qual foi melhor e por quê.** E05 teve o menor EER de validação e foi escolhido pela
-regra definida previamente. Porém, as variantes VGGFace2 (E01, E03 a E07 e E10) têm
-intervalos de confiança sobrepostos e são estatisticamente indistinguíveis. O fator
-que realmente importou foi o **modelo de partida**: VGGFace2 supera CASIA, e ambos
-superam em muito o treino do zero.
+**Qual foi melhor e por quê.** No LFW, E05 teve o menor EER de validação, mas perdeu
+essa vantagem no CelebA. Com os dois datasets, venceu o modelo pré-treinado sem
+fine-tuning (C01). As variantes VGGFace2 têm intervalos de confiança sobrepostos, então
+esses resultados são estatisticamente indistinguíveis. O fator que realmente importou
+foi o **modelo de partida**: VGGFace2 supera CASIA, e ambos superam em muito o treino do
+zero. O CelebA foi mais difícil que o LFW (EER de 3,7% contra 0,75%) e serviu para
+expor que a vantagem de E05 era, ao menos em parte, específica do LFW.
 
-**Hipóteses.**
+**Hipóteses do CelebA.**
+
+| Exp. | Hipótese | Resultado |
+|---|---|---|
+| C01 | CelebA é mais difícil e separa melhor as configurações | Mais difícil: confirmada. Separar: **não**, os intervalos continuam sobrepostos |
+| C02 | Fine-tuning no LFW traz pouca vantagem fora dele | Confirmada: EER de teste no CelebA de 0,0394, contra 0,0369 do baseline |
+| C03 | Mais identidades tornam o fine-tuning claramente melhor | **Refutada**: nenhuma configuração treinada superou C01 na média de validação |
+| C04 | ArcFace supera softmax com muitas identidades | Inconclusiva: melhor (0,0388 contra 0,0407), dentro do ruído |
+| C05 | Triplet fica atrás das perdas com classificação | **Refutada**: foi a melhor das treinadas na validação, quase igual ao pré-treinado |
+| C06 | Com mais dados, o fine-tuning completo supera o parcial | **Não confirmada**: 2.027 s de treino, resultado igual a C04 |
+
+**Hipóteses do LFW.**
 
 | Exp. | Hipótese | Resultado |
 |---|---|---|
@@ -133,23 +173,26 @@ superam em muito o treino do zero.
 | E09 | LFW é pequeno demais para treinar do zero | Confirmada: EER de 24% |
 | E10 | Aumento forte melhora o teste degradado | Inconclusiva: 0,0188 contra 0,0196 de E04, dentro do ruído |
 
-**Impacto do fine-tuning.** Com VGGFace2, ganho pequeno e dentro da incerteza, pois o
-pré-treinado já está perto do teto no LFW. No modelo mais fraco (CASIA), ganho claro. No
-teste degradado, E05 ficou melhor que E01 (EER 0,0172 contra 0,0221), a diferença mais
-sugestiva a favor do fine-tuning.
+**Impacto do fine-tuning.** Com VGGFace2, nenhum ganho comprovado em nenhum dataset, mesmo
+com muito mais identidades de treino. No modelo mais fraco (CASIA), ganho claro no LFW. A
+hipótese mais provável é que VGGFace2 já seja um domínio tão rico quanto o CelebA para esse
+modelo, de modo que as últimas camadas têm pouco a aprender.
 
-**Impacto do threshold.** Para o mesmo FAR, o threshold sobe com o tamanho da galeria. Reduzir o
-FAR-alvo de 1% para 0,1% com 20 pessoas custa 6 pontos de identificação correta (97,0%
-para 91,1%). Ver [ADR-003](docs/decisions/ADR-003-recognition-threshold.md).
+**Impacto do threshold.** Para o mesmo FAR, o threshold sobe com o tamanho da galeria. Com 20
+pessoas no LFW, reduzir o FAR-alvo de 1% para 0,1% custa 4 pontos de identificação
+correta (97,6% para 93,4%). Ver [ADR-003](docs/decisions/ADR-003-recognition-threshold.md).
 
-**Custo e complexidade.** Baselines não exigem treino. O fine-tuning parcial leva cerca de 20 s
-e o completo, 401 s, sem melhora. Com E05, a inferência levou 0,37 ms por recorte, em lote na GPU. O
-ciclo completo na aplicação levou cerca de 110 ms em uma imagem de 250×250 (medição única).
+**Custo e complexidade.** O modelo escolhido não exige treino. No CelebA, o fine-tuning parcial
+levou de 100 a 200 s, e o completo, 2.027 s, sem melhora. A escolha ficou com a opção de menor
+complexidade. O ciclo completo na aplicação levou cerca de 110 ms em uma imagem de 250×250
+(medição única, com o modelo E05, de mesma arquitetura).
 
 **Erros e limitações.**
 
 - O LFW satura as métricas: quase todos os modelos ficam acima de 99%, reduzindo o poder de comparação.
-- Pessoas do LFW podem também estar no VGGFace2 ou no CASIA, o que pode inflar os baselines. Essa sobreposição não foi medida.
+- Pessoas do LFW e do CelebA podem também estar no VGGFace2 ou no CASIA, o que pode inflar os baselines. Essa sobreposição não foi medida.
+- O filtro de sobreposição do CelebA é aproximado e, por ser conservador, retirou 22% das identidades de treino. O E05, treinado no LFW, não tem essa garantia em relação ao teste do CelebA.
+- O fine-tuning no CelebA usou uma única configuração de hiperparâmetros, até 10 imagens por pessoa, e recortes obtidos de imagens já pré-alinhadas pelo próprio CelebA.
 - O LFW tem erros de rótulo conhecidos e, no treino, poucas imagens por pessoa.
 - Uma única semente foi usada; o intervalo por bootstrap não capta a variação entre treinos.
 - A acurácia pode variar entre grupos demográficos, o que não foi avaliado aqui.

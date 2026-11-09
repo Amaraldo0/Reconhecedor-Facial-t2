@@ -7,6 +7,18 @@ Esta pasta fica vazia de propósito. Nenhum dado de pessoa é versionado.
 `python scripts/prepare_lfw.py` baixa o dataset da origem, confere a soma SHA-256 e
 grava o cache em `FACEREC_HOME/public/lfw`.
 
+## CelebA (público, opcional)
+
+Baixe `img_align_celeba` e a partição oficial na fonte original e coloque
+`identity_CelebA.txt` (pasta `Anno`) em `FACEREC_HOME/public/celeba`. Cópias do Kaggle
+costumam vir **sem** esse arquivo. Depois execute:
+
+```bash
+python scripts/prepare_celeba.py --zip caminho/CelebA.zip
+python experiments/run_celeba.py
+python experiments/summarize_celeba.py
+```
+
 ## Dataset privado (local)
 
 Crie, **fora do repositório e de pastas sincronizadas**:
