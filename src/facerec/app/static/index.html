@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reconhecimento Facial</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>Reconhecimento Facial</h1>
+    <p id="status" role="status">Carregando…</p>
+  </header>
+
+  <nav role="tablist" aria-label="Seções">
+    <button role="tab" id="tab-recognize" aria-selected="true" aria-controls="panel-recognize">Reconhecer</button>
+    <button role="tab" id="tab-enroll" aria-selected="false" aria-controls="panel-enroll">Cadastrar</button>
+    <button role="tab" id="tab-persons" aria-selected="false" aria-controls="panel-persons">Pessoas</button>
+  </nav>
+
+  <main>
+    <section id="panel-recognize" role="tabpanel" aria-labelledby="tab-recognize">
+      <div class="stage" id="stage">
+        <video id="video" autoplay muted playsinline hidden></video>
+        <canvas id="canvas" width="640" height="480" aria-label="Imagem analisada com as faces marcadas"></canvas>
+        <p id="stage-hint" class="stage-hint">Inicie a câmera ou envie uma imagem.</p>
+      </div>
+      <p id="result" class="result" aria-live="polite"></p>
+      <div class="actions">
+        <button id="camera-toggle" class="primary">Iniciar câmera</button>
+        <label class="button">Enviar imagem<input id="recognize-file" type="file" accept="image/*" class="visually-hidden"></label>
+      </div>
+      <p id="recognize-message" class="message" role="alert" hidden></p>
+    </section>
+
+    <section id="panel-enroll" role="tabpanel" aria-labelledby="tab-enroll" hidden>
+      <form id="enroll-form" novalidate>
+        <label for="enroll-name">Nome da pessoa</label>
+        <input id="enroll-name" name="name" maxlength="100" autocomplete="off" required>
+
+        <p class="label">Fotos do rosto</p>
+        <div class="actions">
+          <label class="button">Escolher fotos<input id="enroll-files" type="file" accept="image/*" multiple class="visually-hidden"></label>
+          <button type="button" id="enroll-capture">Capturar da câmera</button>
+        </div>
+        <video id="enroll-video" autoplay muted playsinline hidden></video>
+        <ul id="enroll-photos" class="photos"></ul>
+        <p class="hint">Uma foto por vez, com apenas essa pessoa, de frente e bem iluminada. As fotos não são guardadas, só as representações numéricas do rosto.</p>
+
+        <label class="consent">
+          <input id="enroll-consent" type="checkbox">
+          <span>Confirmo que esta pessoa foi informada, concordou e assinou o Termo de Consentimento.</span>
+        </label>
+        <button type="submit" class="primary" id="enroll-submit">Cadastrar pessoa</button>
+      </form>
+      <p id="enroll-message" class="message" role="alert" hidden></p>
+    </section>
+
+    <section id="panel-persons" role="tabpanel" aria-labelledby="tab-persons" hidden>
+      <ul id="persons" class="persons"></ul>
+      <p id="persons-empty" class="empty" hidden>Nenhuma pessoa cadastrada.</p>
+      <p id="persons-message" class="message" role="alert" hidden></p>
+    </section>
+  </main>
+
+  <footer>Uso acadêmico, somente com pessoas que consentiram. Os dados ficam neste computador.</footer>
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+# Configuração da aplicação. Valores de modelo e threshold vêm da Parte 1 (ver ADR-001 e ADR-003).
+server:
+  host: 127.0.0.1
+  port: 8000
+
+model:
+  id: facenet-vggface2
+  pretrained: vggface2     # vggface2 | casia-webface
+  checkpoint: null         # caminho relativo a FACEREC_HOME, ou null para os pesos públicos
+  device: auto             # auto | cuda | cpu
+
+detection:
+  min_confidence: 0.90
+  image_size: 160
+  margin: 14
+  align: true
+
+quality:
+  min_face_px: 60
+  min_confidence: 0.95
+  min_sharpness: 15.0
+  min_brightness: 40.0
+  max_brightness: 225.0
+
+recognition:
+  threshold: 0.5           # substituído pelo valor calibrado na validação
+  aggregation: max         # max | prototype
+
+enrollment:
+  max_images: 10
+  consistency_threshold: 0.35
+
+limits:
+  max_upload_bytes: 10000000
+  max_pixels: 25000000
+
+storage:
+  store_photos: false
