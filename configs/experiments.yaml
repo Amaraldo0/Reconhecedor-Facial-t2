@@ -1,0 +1,80 @@
+# Definição dos experimentos. Só uma variável muda em cada comparação.
+defaults:
+  seed: 42
+  epochs: 20
+  patience: 4
+  p: 32
+  k: 4
+  backbone_lr: 1.0e-4
+  head_lr: 1.0e-3
+  weight_decay: 5.0e-4
+  margin: 0.3
+  scale: 30.0
+  strong_augment: false
+  variant: aligned
+
+experiments:
+  - id: E01
+    title: FaceNet VGGFace2, sem fine-tuning
+    hypothesis: Pesos treinados em VGGFace2 já separam bem as identidades do LFW e servem de referência.
+    pretrained: vggface2
+    strategy: baseline
+    loss: none
+  - id: E02
+    title: FaceNet CASIA-WebFace, sem fine-tuning
+    hypothesis: VGGFace2 supera CASIA-WebFace por ter mais imagens por identidade e mais variação de pose.
+    pretrained: casia-webface
+    strategy: baseline
+    loss: none
+  - id: E03
+    title: FaceNet VGGFace2 sem nivelar os olhos
+    hypothesis: Nivelar os olhos antes do recorte reduz a variação de pose e diminui o EER em relação a E01.
+    pretrained: vggface2
+    strategy: baseline
+    loss: none
+    variant: crop_only
+  - id: E04
+    title: Fine-tuning parcial com ArcFace
+    hypothesis: Ajustar as últimas camadas com margem angular torna os embeddings mais discriminativos que E01.
+    pretrained: vggface2
+    strategy: partial
+    loss: arcface
+  - id: E05
+    title: Fine-tuning parcial com entropia cruzada
+    hypothesis: Sem margem angular, o ganho será menor que o de E04.
+    pretrained: vggface2
+    strategy: partial
+    loss: crossentropy
+  - id: E06
+    title: Fine-tuning parcial com Triplet
+    hypothesis: A perda Triplet aproveita bem poucas imagens por pessoa e fica próxima de E04.
+    pretrained: vggface2
+    strategy: partial
+    loss: triplet
+  - id: E07
+    title: Fine-tuning completo com ArcFace
+    hypothesis: Com poucos dados, liberar toda a rede causa sobreajuste e não supera o fine-tuning parcial.
+    pretrained: vggface2
+    strategy: full
+    loss: arcface
+    backbone_lr: 1.0e-5
+  - id: E08
+    title: Fine-tuning parcial do CASIA-WebFace com ArcFace
+    hypothesis: O ganho de fine-tuning é maior no modelo de partida mais fraco (E02).
+    pretrained: casia-webface
+    strategy: partial
+    loss: arcface
+  - id: E09
+    title: Treino do zero com ArcFace (controle)
+    hypothesis: Sem pesos pré-treinados, o LFW é pequeno demais para obter embeddings competitivos.
+    pretrained: null
+    strategy: scratch
+    loss: arcface
+    backbone_lr: 1.0e-3
+  - id: E10
+    title: Fine-tuning parcial com ArcFace e aumento forte
+    hypothesis: Treinar com degradações melhora o desempenho no teste degradado em relação a E04.
+    pretrained: vggface2
+    strategy: partial
+    loss: arcface
+    strong_augment: true

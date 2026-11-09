@@ -1,0 +1,17 @@
+# Instale o PyTorch antes, conforme o README (índice CUDA 12.8 ou CPU):
+#   torch==2.11.0 torchvision==0.26.0
+# facenet-pytorch é instalado com --no-deps, porque declara limites antigos de torch e numpy.
+numpy==2.5.4
+scipy==1.18.1
+scikit-learn==1.9.1
+opencv-python-headless==5.0.0.93
+pillow==13.0.0
+matplotlib==3.11.2
+PyYAML==6.0.3
+requests==2.34.2
+tqdm==4.70.1
+fastapi==0.162.2
+uvicorn[standard]==0.54.0
+python-multipart==0.0.33
+httpx==0.28.1
+pytest==9.2.0
