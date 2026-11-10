@@ -1,6 +1,6 @@
 # ADR-003: Threshold de reconhecimento
 
-**Status:** aceito, a reavaliar com o dataset privado
+**Status:** aceito. Na avaliação do dataset privado (6 pessoas, 17 imagens), o valor não produziu erros e foi mantido, ressalvado o tamanho pequeno da amostra.
 
 ## Contexto
 

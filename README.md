@@ -110,7 +110,7 @@ Accuracy e F1 no teste, com o threshold de EER obtido na validação.
 | E08 | FaceNet CASIA | fine-tuning parcial, ArcFace | público | 0,9917 | 0,9917 | Maior ganho sobre seu baseline |
 | E09 | Inception-ResNet | treino do zero, ArcFace | público | 0,7579 | 0,7572 | Controle; EER 24,3% |
 | E10 | FaceNet VGGFace2 | fine-tuning parcial, ArcFace, aumento forte | público | 0,9914 | 0,9914 | EER val 0,0067 |
-| P01 | Configuração C01 | avaliação | privado | *pendente* | *pendente* | Rodar `experiments/evaluate_private.py` |
+| P01 | FaceNet VGGFace2 (C01) | avaliação, sem treino | privado | 1,0000 | 1,0000 | 6 pessoas, 17 imagens, 32 pares; amostra pequena |
 
 Tabelas completas (AUC, EER com IC 95%, FAR, FRR, teste degradado) e comparadores em
 [`SUMMARY.md`](experiments/results/SUMMARY.md) e [`SUMMARY_CELEBA.md`](experiments/results/SUMMARY_CELEBA.md).
@@ -186,6 +186,15 @@ correta (97,6% para 93,4%). Ver [ADR-003](docs/decisions/ADR-003-recognition-thr
 levou de 100 a 200 s, e o completo, 2.027 s, sem melhora. A escolha ficou com a opção de menor
 complexidade. O ciclo completo na aplicação levou cerca de 110 ms em uma imagem de 250×250
 (medição única, com o modelo E05, de mesma arquitetura).
+
+**Dataset privado.** Com o limiar 0,673, fixado antes desta avaliação, não houve erros: AUC 1,0,
+FAR 0 e FRR 0 em 32 pares, e nenhuma das 17 imagens foi aceita quando sua pessoa foi retirada da
+galeria. Uma das 18 imagens foi descartada por não ter exatamente uma face. O resultado é
+compatível com os públicos, mas a amostra é pequena: com 0 erros em 16 pares positivos, o limite
+superior aproximado de 95% para o FRR é de 17%, e o FAR entre desconhecidos tem limite semelhante
+(16%). **Portanto, ele indica que o sistema funciona nesse domínio, sem medir uma taxa de erro
+próxima de zero.** O modelo e o limiar não foram alterados com base nesses dados, e nenhum
+treino foi feito com eles.
 
 **Erros e limitações.**
 
