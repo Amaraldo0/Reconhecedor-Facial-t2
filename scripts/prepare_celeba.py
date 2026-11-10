@@ -1,7 +1,7 @@
 """Alinha o CelebA a partir do zip local, gravando o cache fora do repositório.
 
-Baixe as imagens na fonte oficial (ou cópia equivalente) e coloque, em FACEREC_HOME/public/celeba,
-o `identity_CelebA.txt` da pasta Anno oficial. O zip é lido sem extração.
+Obtenha os dados na fonte oficial, conforme o acordo do CelebA, e coloque `identity_CelebA.txt`
+em FACEREC_HOME/public/celeba. O zip é lido sem extração.
 
 Uso: python scripts/prepare_celeba.py --zip caminho/CelebA.zip
 """

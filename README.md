@@ -71,14 +71,18 @@ citam o critério que verificam (`test_ca_002_3_...`).
 
 - Fonte oficial: <https://vis-www.cs.umass.edu/lfw/> (University of Massachusetts Amherst).
 - Finalidade: benchmark acadêmico de reconhecimento facial.
-- Termos: **a confirmar pelo grupo na página oficial antes da entrega** (Anexo B). O site estava inacessível quando o projeto foi preparado.
+- Termos: **não verificados.** Em novembro de 2026, o site oficial e a tentativa pelo Wayback Machine ficaram inacessíveis, então nenhuma licença é presumida aqui. O dataset é citado como exemplo no próprio enunciado da disciplina. Por precaução, foi usado só para fins acadêmicos e sem redistribuição.
 - Uso: 13.233 imagens de 5.749 pessoas, para fine-tuning, validação e teste. O arquivo veio do espelho no Figshare também usado pelo scikit-learn, com SHA-256 conferido. **Não é redistribuído aqui.**
 
 **CelebA (CelebFaces Attributes)**
 
 - Fonte oficial: <https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html> (MMLAB, CUHK).
 - Finalidade: pesquisa acadêmica não comercial.
-- Termos: uso acadêmico e não comercial, com restrições à redistribuição das imagens e de dados derivados. **O grupo deve conferir o texto oficial antes da entrega** (Anexo B).
+- Quem disponibilizou: MMLAB, The Chinese University of Hong Kong. As imagens vêm da Internet e não são propriedade do MMLAB.
+- Termos (verificados no acordo da página oficial): somente pesquisa não comercial; proíbe copiar, publicar ou distribuir qualquer parte do dataset, salvo cópias para uso interno em um único local da mesma organização; proíbe exploração comercial das imagens e de dados derivados. O MMLAB pode encerrar o acesso a qualquer momento.
+- Treinamento: o acordo não trata do tema de forma explícita. Foi entendido como parte da pesquisa não comercial.
+- Identidades: segundo o acordo, são liberadas mediante solicitação, para pesquisa.
+- **Ressalvas de procedência:** as imagens vieram de uma cópia de terceiros no Kaggle, e não diretamente do MMLAB. O arquivo de identidades veio do link no Google Drive oficial, sem solicitação formal ao MMLAB.
 - Uso: até 10 imagens por identidade (92.589 imagens de 10.177 pessoas), com a partição oficial. Imagens obtidas de cópia no Kaggle; identidades do Google Drive oficial, com MD5 conferido. **Nem as imagens nem checkpoints derivados são distribuídos aqui.**
 
 **Pesos pré-treinados**: `facenet-pytorch` (<https://github.com/timesler/facenet-pytorch>), baixados por referência, treinados em VGGFace2 e CASIA-WebFace.

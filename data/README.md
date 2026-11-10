@@ -9,9 +9,9 @@ grava o cache em `FACEREC_HOME/public/lfw`.
 
 ## CelebA (público, opcional)
 
-Baixe `img_align_celeba` e a partição oficial na fonte original e coloque
-`identity_CelebA.txt` (pasta `Anno`) em `FACEREC_HOME/public/celeba`. Cópias do Kaggle
-costumam vir **sem** esse arquivo. Depois execute:
+Leia o acordo em <https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html>. Obtenha as imagens
+e a partição na fonte oficial e solicite as identidades conforme o acordo. Coloque
+`identity_CelebA.txt` em `FACEREC_HOME/public/celeba`. Depois execute:
 
 ```bash
 python scripts/prepare_celeba.py --zip caminho/CelebA.zip
