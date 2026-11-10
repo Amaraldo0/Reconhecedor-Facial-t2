@@ -82,8 +82,9 @@ citam o critério que verificam (`test_ca_002_3_...`).
 - Termos (verificados no acordo da página oficial): somente pesquisa não comercial; proíbe copiar, publicar ou distribuir qualquer parte do dataset, salvo cópias para uso interno em um único local da mesma organização; proíbe exploração comercial das imagens e de dados derivados. O MMLAB pode encerrar o acesso a qualquer momento.
 - Treinamento: o acordo não trata do tema de forma explícita. Foi entendido como parte da pesquisa não comercial.
 - Identidades: segundo o acordo, são liberadas mediante solicitação, para pesquisa.
-- **Ressalvas de procedência:** as imagens vieram de uma cópia de terceiros no Kaggle, e não diretamente do MMLAB. O arquivo de identidades veio do link no Google Drive oficial, sem solicitação formal ao MMLAB.
-- Uso: até 10 imagens por identidade (92.589 imagens de 10.177 pessoas), com a partição oficial. Imagens obtidas de cópia no Kaggle; identidades do Google Drive oficial, com MD5 conferido. **Nem as imagens nem checkpoints derivados são distribuídos aqui.**
+- **Procedência das imagens:** `img_align_celeba.zip` baixado da fonte oficial após o aceite do acordo, com MD5 `00d2c5bc6d35e252742224ab0c1e8fcb` conferido. Os experimentos haviam sido executados antes com uma cópia do Kaggle. O reprocessamento a partir do zip oficial gerou os mesmos 92.589 recortes, idênticos byte a byte, com os mesmos rótulos e partições, então os resultados valem para os dados oficiais. A cópia do Kaggle foi descartada.
+- **Ressalva:** o arquivo de identidades veio do link no Google Drive oficial, com MD5 conferido, mas sem solicitação formal ao MMLAB.
+- Uso: até 10 imagens por identidade (92.589 imagens de 10.177 pessoas), com a partição oficial. Imagens e identidades obtidas da fonte oficial, com MD5 conferido. **Nem as imagens nem checkpoints derivados são distribuídos aqui.**
 
 **Pesos pré-treinados**: `facenet-pytorch` (<https://github.com/timesler/facenet-pytorch>), baixados por referência, treinados em VGGFace2 e CASIA-WebFace.
 

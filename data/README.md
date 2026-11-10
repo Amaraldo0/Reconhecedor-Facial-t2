@@ -14,7 +14,7 @@ e a partição na fonte oficial e solicite as identidades conforme o acordo. Col
 `identity_CelebA.txt` em `FACEREC_HOME/public/celeba`. Depois execute:
 
 ```bash
-python scripts/prepare_celeba.py --zip caminho/CelebA.zip
+python scripts/prepare_celeba.py --zip caminho/img_align_celeba.zip
 python experiments/run_celeba.py
 python experiments/summarize_celeba.py
 ```

@@ -3,12 +3,11 @@
 Obtenha os dados na fonte oficial, conforme o acordo do CelebA, e coloque `identity_CelebA.txt`
 em FACEREC_HOME/public/celeba. O zip é lido sem extração.
 
-Uso: python scripts/prepare_celeba.py --zip caminho/CelebA.zip
+Uso: python scripts/prepare_celeba.py --zip caminho/img_align_celeba.zip
 """
 from __future__ import annotations
 
 import argparse
-import csv
 import hashlib
 import io
 import json
@@ -21,12 +20,16 @@ from tqdm import tqdm
 
 from facerec.config import assert_safe_data_dir, default_home
 from facerec.imaging import align_and_crop
-from facerec.training.data import assert_partitions_disjoint, cap_per_identity, central_face_index, dhash
+from facerec.training.data import (
+    assert_partitions_disjoint,
+    cap_per_identity,
+    celeba_partitions,
+    central_face_index,
+    dhash,
+)
 from facerec.vision import resolve_device
 
 IDENTITY_MD5 = "32bd1bd63d3c78cd57e08160ec5ed1e2"
-IMAGE_PREFIX = "img_align_celeba/img_align_celeba/"
-PARTITION_FILE = "list_eval_partition.csv"
 IMAGE_SIZE, MARGIN, BATCH, MAX_PER_IDENTITY, SEED = 160, 14, 64, 10, 42
 CENTER_X, CENTER_Y = 89.0, 109.0
 
@@ -36,14 +39,17 @@ def verify_md5(data: bytes, expected: str = IDENTITY_MD5) -> None:
         raise SystemExit("identity_CelebA.txt com soma MD5 divergente.")
 
 
-def load_metadata(archive: zipfile.ZipFile, identity_file: Path) -> tuple[list[str], np.ndarray, np.ndarray]:
+def load_metadata(identity_file: Path) -> tuple[list[str], np.ndarray, np.ndarray]:
     data = identity_file.read_bytes()
     verify_md5(data)
-    identity = {name: int(value) for name, value in (line.split() for line in data.decode().splitlines())}
-    with archive.open(PARTITION_FILE) as handle:
-        rows = list(csv.DictReader(io.TextIOWrapper(handle, encoding="utf-8")))
-    names = [row["image_id"] for row in rows]
-    return names, np.array([identity[name] for name in names]), np.array([int(row["partition"]) for row in rows])
+    rows = [line.split() for line in data.decode().splitlines()]
+    return [name for name, _ in rows], np.array([int(value) for _, value in rows]), celeba_partitions(len(rows))
+
+
+def image_prefix(archive: zipfile.ZipFile) -> str:
+    """Pasta das imagens dentro do zip, que varia entre as distribuições."""
+    first = next(name for name in archive.namelist() if name.lower().endswith(".jpg"))
+    return first.rsplit("/", 1)[0] + "/"
 
 
 def main() -> None:
@@ -57,7 +63,8 @@ def main() -> None:
     root = home / "public" / "celeba"
 
     with zipfile.ZipFile(args.zip) as archive:
-        names, labels, partitions = load_metadata(archive, root / "identity_CelebA.txt")
+        names, labels, partitions = load_metadata(root / "identity_CelebA.txt")
+        prefix = image_prefix(archive)
         assert_partitions_disjoint(labels, partitions)
         selected = cap_per_identity(labels, MAX_PER_IDENTITY, SEED)
         mtcnn = MTCNN(keep_all=True, device=resolve_device("auto"), post_process=False)
@@ -65,7 +72,7 @@ def main() -> None:
         for start in tqdm(range(0, len(selected), BATCH), desc="Alinhando"):
             chunk = selected[start:start + BATCH]
             images = [
-                np.asarray(Image.open(io.BytesIO(archive.read(IMAGE_PREFIX + names[i]))).convert("RGB"))
+                np.asarray(Image.open(io.BytesIO(archive.read(prefix + names[i]))).convert("RGB"))
                 for i in chunk
             ]
             boxes, _, points = mtcnn.detect(images, landmarks=True)

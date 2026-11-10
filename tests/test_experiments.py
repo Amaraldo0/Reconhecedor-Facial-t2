@@ -9,6 +9,7 @@ from facerec.training.data import (
     Split,
     assert_partitions_disjoint,
     cap_per_identity,
+    celeba_partitions,
     central_face_index,
     dhash,
     has_cross_split_duplicates,
@@ -153,3 +154,10 @@ def test_ca_008_4_remove_so_identidades_parecidas():
 def test_face_central_e_escolhida():
     boxes = np.array([[0.0, 0.0, 20.0, 20.0], [80.0, 90.0, 120.0, 130.0]])
     assert central_face_index(boxes, 100.0, 110.0) == 1
+
+
+def test_particao_oficial_do_celeba():
+    partitions = celeba_partitions()
+    assert np.bincount(partitions).tolist() == [162_770, 19_867, 19_962]
+    assert partitions[162_769] == 0 and partitions[162_770] == 1
+    assert partitions[182_636] == 1 and partitions[182_637] == 2

@@ -184,3 +184,11 @@ def overlapping_identities(
     _, others = identity_centroids(reference, reference_labels)
     best = np.concatenate([(centroids[i:i + 2048] @ others.T).max(axis=1) for i in range(0, len(centroids), 2048)])
     return identities[best >= threshold]
+
+
+def celeba_partitions(count: int = 202_599) -> np.ndarray:
+    """Partição oficial do CelebA, que é definida pela ordem numérica dos arquivos."""
+    partitions = np.zeros(count, dtype=np.int8)
+    partitions[162_770:182_637] = 1
+    partitions[182_637:] = 2
+    return partitions
