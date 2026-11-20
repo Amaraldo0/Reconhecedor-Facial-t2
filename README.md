@@ -1,5 +1,7 @@
 # Sistema de Reconhecimento Facial
 
+**Integrante:** Emmanuel Gomes Tronchini
+
 Trabalho da disciplina de Inteligência Artificial (UFMS). Investiga experimentalmente
 a melhor configuração de reconhecimento facial e a usa em uma aplicação web local com
 câmera, cadastro, reconhecimento e exclusão de pessoas.
@@ -88,7 +90,7 @@ citam o critério que verificam (`test_ca_002_3_...`).
 
 **Pesos pré-treinados**: `facenet-pytorch` (<https://github.com/timesler/facenet-pytorch>), baixados por referência, treinados em VGGFace2 e CASIA-WebFace.
 
-**Dataset privado**: fotos dos integrantes, com consentimento, somente locais. Ver [data/README.md](data/README.md).
+**Dataset privado**: fotos do integrante e de participantes, com consentimento, somente locais. Ver [data/README.md](data/README.md).
 
 ## Protocolo experimental
 
@@ -217,7 +219,7 @@ treino foi feito com eles.
 
 O projeto foi desenvolvido com Claude Code em processo orientado a especificações. O
 agente recebeu apenas o enunciado, código e dados públicos ou sintéticos, nunca fotos de
-participantes. A responsabilidade pelo código e pelas decisões é do(s) integrante(s).
+participantes. A responsabilidade pelo código e pelas decisões é do integrante.
 
 ## Privacidade
 
