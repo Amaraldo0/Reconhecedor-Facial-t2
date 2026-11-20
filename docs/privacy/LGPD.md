@@ -33,19 +33,19 @@ Estes itens são procedimentos humanos que o software não consegue garantir:
 
 ## Checklist antes da entrega (Anexo B)
 
-- [ ] Todas as pessoas participantes deram consentimento.
-- [ ] Os termos de consentimento estão armazenados de forma privada.
-- [ ] Nenhum termo de consentimento está no GitHub.
-- [ ] Nenhuma fotografia privada está no GitHub.
-- [ ] Nenhum embedding privado está no GitHub.
-- [ ] Nenhum banco biométrico está no GitHub.
-- [ ] Nenhum checkpoint derivado dos dados privados está no GitHub.
-- [ ] O `.gitignore` protege os diretórios privados.
-- [ ] O histórico do Git foi verificado (`python scripts/privacy_audit.py`).
-- [ ] As licenças dos datasets públicos foram verificadas.
-- [ ] O README informa a origem dos datasets públicos.
-- [ ] Os resultados publicados não identificam os participantes.
-- [ ] O vídeo respeita as autorizações concedidas.
-- [ ] Os dados privados não foram enviados inadvertidamente para serviços externos.
-- [ ] Existe uma forma de excluir uma pessoa cadastrada.
-- [ ] O grupo conhece as regras de proteção de dados aplicáveis ao projeto.
+- [x] Todas as pessoas participantes deram consentimento.
+- [x] Os termos de consentimento estão armazenados de forma privada.
+- [x] Nenhum termo de consentimento está no GitHub.
+- [x] Nenhuma fotografia privada está no GitHub.
+- [x] Nenhum embedding privado está no GitHub.
+- [x] Nenhum banco biométrico está no GitHub.
+- [x] Nenhum checkpoint derivado dos dados privados está no GitHub.
+- [x] O `.gitignore` protege os diretórios privados.
+- [x] O histórico do Git foi verificado (`python scripts/privacy_audit.py`).
+- [ ] As licenças dos datasets públicos foram verificadas.(OBS: os termos do LFW não foram verificados)
+- [x] O README informa a origem dos datasets públicos.
+- [x] Os resultados publicados não identificam os participantes.
+- [x] O vídeo respeita as autorizações concedidas.
+- [x] Os dados privados não foram enviados inadvertidamente para serviços externos.
+- [x] Existe uma forma de excluir uma pessoa cadastrada.
+- [x] O grupo conhece as regras de proteção de dados aplicáveis ao projeto.
