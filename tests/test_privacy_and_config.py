@@ -14,6 +14,7 @@ from facerec.errors import UnsafeDataDirError
 from facerec.imaging import align_and_crop, decode_image
 
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
+import prepare_celeba  # noqa: E402
 import privacy_audit  # noqa: E402
 import purge_all  # noqa: E402
 
@@ -63,6 +64,14 @@ def test_purge_remove_privados_e_mantem_publicos(tmp_path):
     purge_all.purge(tmp_path)
     assert not (tmp_path / "gallery").exists() and not (tmp_path / "private_dataset").exists()
     assert (tmp_path / "public/lfw/x").exists()
+
+
+def test_ca_008_1_md5_divergente_interrompe_preparacao():
+    import hashlib
+
+    prepare_celeba.verify_md5(b"conteudo", hashlib.md5(b"conteudo").hexdigest())
+    with pytest.raises(SystemExit):
+        prepare_celeba.verify_md5(b"arquivo adulterado")
 
 
 def test_ca_001_6_respeita_exif():

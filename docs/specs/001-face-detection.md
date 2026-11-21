@@ -2,9 +2,14 @@
 
 ## Comportamento
 
-Dada uma imagem RGB, retornar todas as faces detectadas com caixa, confiança, cinco
-landmarks e o recorte alinhado de 160×160 pronto para a rede. O alinhamento usa os
-olhos para corrigir a rotação antes do recorte, com margem configurável.
+Dada uma imagem RGB, retornar todas as faces detectadas com caixa, confiança e o recorte
+alinhado de 160×160 pronto para a rede. O detector também estima cinco landmarks, e os dos
+olhos são usados para corrigir a rotação antes do recorte, com margem configurável.
+
+> **Revisão após a Parte 1:** o experimento E03 comparou o recorte com e sem nivelar os olhos e
+> não encontrou diferença (EER de validação 0,0079 nos dois casos). O nivelamento foi mantido
+> (`detection.align: true`) por ser o pré-processamento das configurações avaliadas, inclusive a
+> escolhida (C01). Pode ser desligado na configuração sem perda medida no LFW.
 
 A avaliação de qualidade é separada da detecção: o detector relata o que viu, e o
 cadastro decide o que aceita.

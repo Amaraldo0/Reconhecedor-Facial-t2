@@ -1,6 +1,8 @@
 # Resultados agregados (gerado por experiments/summarize.py)
 
-Melhor por EER de validação: **E05**.
+Melhor por EER de validação nesta rodada (só LFW): **E05**.
+
+> A configuração final da aplicação **não** é escolhida aqui. Ela é a C01, escolhida pela média do EER de validação em LFW e CelebA ([SUMMARY_CELEBA.md](SUMMARY_CELEBA.md)). Os comparadores e os thresholds desta página são do modelo E05; o limiar da aplicação está no ADR-003.
 
 | Experimento | Modelo | Estratégia | Perda | Dataset | Accuracy | F1 | AUC | EER val | EER teste (IC 95%) | FAR | FRR | EER degradado | Tempo (s) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|

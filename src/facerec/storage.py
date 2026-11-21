@@ -63,7 +63,8 @@ class FaceStore:
     @property
     def version(self) -> int:
         """Muda a cada alteração, permitindo invalidar caches da galeria."""
-        return self._version
+        with self._lock:
+            return self._version
 
     def close(self) -> None:
         with self._lock:

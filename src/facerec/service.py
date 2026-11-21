@@ -45,18 +45,22 @@ class FaceService:
         self.embedder = embedder
         self.store = store
         self._inference_lock = threading.Lock()
-        self._gallery_version = -1
-        self._gallery = np.empty((0, 512), dtype=np.float32)
-        self._owners: list[str] = []
+        # Versão, matriz e donos são trocados juntos, para que uma consulta concorrente
+        # nunca veja a matriz nova com a lista de donos antiga.
+        self._gallery_lock = threading.Lock()
+        self._gallery_cache: tuple[int, np.ndarray, list[str]] = (-1, np.empty((0, 512), dtype=np.float32), [])
         self.skipped_embeddings = store.count_other_models(embedder.model_id)
         if self.skipped_embeddings:
             log.warning("gallery_model_mismatch count=%d", self.skipped_embeddings)
 
     def _current_gallery(self) -> tuple[np.ndarray, list[str]]:
-        if self._gallery_version != self.store.version:
-            self._gallery_version = self.store.version
-            self._gallery, self._owners = self.store.load_gallery(self.embedder.model_id)
-        return self._gallery, self._owners
+        with self._gallery_lock:
+            version = self.store.version
+            if self._gallery_cache[0] != version:
+                gallery, owners = self.store.load_gallery(self.embedder.model_id)
+                self._gallery_cache = (version, gallery, owners)
+            _, gallery, owners = self._gallery_cache
+        return gallery, owners
 
     def _decode(self, data: bytes) -> np.ndarray:
         return decode_image(data, self.cfg.limits.max_upload_bytes, self.cfg.limits.max_pixels)

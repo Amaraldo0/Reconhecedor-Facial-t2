@@ -34,7 +34,7 @@ A aplicação usa os pesos públicos, baixados automaticamente na primeira execu
 python -m facerec.app
 ```
 
-Abra <http://127.0.0.1:8000>. Para reproduzir os experimentos:
+Abra <http://127.0.0.1:8000>. Para reproduzir os experimentos, que exigem GPU NVIDIA com CUDA:
 
 ```bash
 python scripts/prepare_lfw.py
@@ -65,7 +65,8 @@ Imagem → MTCNN (detecção + landmarks) → alinhamento → FaceNet (embedding
 
 O desenvolvimento seguiu Spec-Driven Development: requisitos e critérios em
 [`docs/specs`](docs/specs), decisões em [`docs/decisions`](docs/decisions), e os testes
-citam o critério que verificam (`test_ca_002_3_...`).
+citam o critério que verificam (`test_ca_002_3_...`). A correspondência completa entre critérios
+e testes está em [`docs/specs/rastreabilidade.md`](docs/specs/rastreabilidade.md).
 
 ## Datasets
 
@@ -103,7 +104,9 @@ citam o critério que verificam (`test_ca_002_3_...`).
 
 ## Resultados
 
-Accuracy e F1 no teste, com o threshold de EER obtido na validação.
+Accuracy e F1 no teste, com o threshold de EER obtido na validação. Esse limiar serve só para
+comparar os experimentos. A aplicação usa outro, o limiar operacional 0,673, calibrado para
+identificação em uma galeria de pessoas ([ADR-003](docs/decisions/ADR-003-recognition-threshold.md)).
 
 | Experimento | Modelo | Estratégia | Dataset | Accuracy | F1 | Observação |
 |---|---|---|---|---|---|---|
@@ -124,17 +127,18 @@ Tabelas completas (AUC, EER com IC 95%, FAR, FRR, teste degradado) e comparadore
 
 ### Segunda rodada: CelebA e LFW
 
-Accuracy no teste de cada dataset. **A configuração usada na aplicação é C01**, escolhida
+Accuracy e F1 no teste de cada dataset, com o threshold de EER da validação. EER e intervalos de
+confiança estão em [`SUMMARY_CELEBA.md`](experiments/results/SUMMARY_CELEBA.md). **A configuração usada na aplicação é C01**, escolhida
 pela menor média do EER de validação nos dois datasets, regra definida antes dos treinos.
 
-| Experimento | Modelo | Estratégia | Treino | Acc. CelebA | EER teste CelebA | Acc. LFW | EER teste LFW | Média EER val |
-|---|---|---|---|---|---|---|---|---|
-| **C01** | **FaceNet VGGFace2** | **sem fine-tuning** | **-** | **0,9625** | **0,0369** | **0,9919** | **0,0075** | **0,0239** |
-| C02 | FaceNet VGGFace2 | E05 reavaliado | LFW | 0,9600 | 0,0394 | 0,9919 | 0,0070 | 0,0250 |
-| C03 | FaceNet VGGFace2 | parcial, softmax | CelebA | 0,9571 | 0,0407 | 0,9919 | 0,0086 | 0,0265 |
-| C04 | FaceNet VGGFace2 | parcial, ArcFace | CelebA | 0,9596 | 0,0388 | 0,9927 | 0,0073 | 0,0252 |
-| C05 | FaceNet VGGFace2 | parcial, Triplet | CelebA | 0,9608 | 0,0376 | 0,9914 | 0,0083 | 0,0245 |
-| C06 | FaceNet VGGFace2 | completo, ArcFace | CelebA | 0,9599 | 0,0380 | 0,9927 | 0,0070 | 0,0252 |
+| Experimento | Modelo | Estratégia | Treino | Dataset | Accuracy CelebA | F1 CelebA | Accuracy LFW | F1 LFW | Média EER val |
+|---|---|---|---|---|---|---|---|---|---|
+| **C01** | **FaceNet VGGFace2** | **sem fine-tuning** | **-** | **públicos (CelebA e LFW)** | **0,9625** | **0,9625** | **0,9919** | **0,9919** | **0,0239** |
+| C02 | FaceNet VGGFace2 | E05 reavaliado | LFW | públicos (CelebA e LFW) | 0,9600 | 0,9601 | 0,9919 | 0,9920 | 0,0250 |
+| C03 | FaceNet VGGFace2 | parcial, softmax | CelebA | públicos (CelebA e LFW) | 0,9571 | 0,9573 | 0,9919 | 0,9919 | 0,0265 |
+| C04 | FaceNet VGGFace2 | parcial, ArcFace | CelebA | públicos (CelebA e LFW) | 0,9596 | 0,9597 | 0,9927 | 0,9927 | 0,0252 |
+| C05 | FaceNet VGGFace2 | parcial, Triplet | CelebA | públicos (CelebA e LFW) | 0,9608 | 0,9609 | 0,9914 | 0,9914 | 0,0245 |
+| C06 | FaceNet VGGFace2 | completo, ArcFace | CelebA | públicos (CelebA e LFW) | 0,9599 | 0,9600 | 0,9927 | 0,9927 | 0,0252 |
 
 Para o teste do LFW continuar independente, 1.792 identidades parecidas com as da
 validação ou do teste do LFW foram retiradas do treino do CelebA, restando 56.742 imagens

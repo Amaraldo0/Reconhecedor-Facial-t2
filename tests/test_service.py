@@ -39,6 +39,8 @@ def test_ca_002_4_imagem_inadequada_informa_motivo(service, problem, word):
 
 @pytest.mark.parametrize("variant", ["joao silva", "JOÃO   SILVA", "João Silva"])
 def test_ca_002_5_nome_duplicado(service, variant):
+    # Usa outra face de propósito: com a mesma face, a recusa viria de CA-002.6
+    # (face duplicada) antes de chegar à verificação do nome.
     service.enroll("João Silva", True, [make_image(1)])
     with pytest.raises(errors.DuplicatePersonError):
         service.enroll(variant, True, [make_image(2)])
@@ -123,6 +125,20 @@ def test_ca_004_1_igual_ao_threshold_e_reconhecido():
 
 def test_ca_004_2_abaixo_do_threshold_e_desconhecido():
     assert not is_recognized(0.4999, 0.5)
+
+
+def test_ca_004_1_servico_aceita_exatamente_no_threshold(config, store):
+    at_limit = replace(config, recognition=RecognitionConfig(threshold=1.0))
+    service = FaceService(at_limit, FakeDetector(), FakeEmbedder(), store)
+    service.enroll("Ana", True, [make_image(1)])
+    assert service.recognize(make_image(1))[0].recognized is True
+
+
+def test_ca_004_2_servico_rejeita_logo_abaixo_do_threshold(config, store):
+    above = replace(config, recognition=RecognitionConfig(threshold=float(np.nextafter(np.float32(1.0), np.float32(2.0)))))
+    service = FaceService(above, FakeDetector(), FakeEmbedder(), store)
+    service.enroll("Ana", True, [make_image(1)])
+    assert service.recognize(make_image(1))[0].recognized is False
 
 
 def test_ca_004_3_desconhecido_nao_revela_candidato(service):

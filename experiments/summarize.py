@@ -171,7 +171,12 @@ def main() -> None:
     report = [
         "# Resultados agregados (gerado por experiments/summarize.py)",
         "",
-        f"Melhor por EER de validação: **{best}**.",
+        f"Melhor por EER de validação nesta rodada (só LFW): **{best}**.",
+        "",
+        "> A configuração final da aplicação **não** é escolhida aqui. Ela é a C01, escolhida pela "
+        "média do EER de validação em LFW e CelebA ([SUMMARY_CELEBA.md](SUMMARY_CELEBA.md)). "
+        f"Os comparadores e os thresholds desta página são do modelo {best}; o limiar da aplicação "
+        "está no ADR-003.",
         "",
         table(results),
         "",
